@@ -69,6 +69,45 @@ app.get('/expense/:userId', (req, res) => {
 
 
 // ---------------- Delete an Expense ----------------
+app.delete('/expense/:userId/:index', (req, res) => {
+  const userId = parseInt(req.params.userId, 10);
+  const index1 = parseInt(req.params.index, 10); 
+
+  if (Number.isNaN(userId) || Number.isNaN(index1) || index1 < 1) {
+    return res.status(400).json({ message: 'Invalid userId or index' });
+    }
+
+  
+  const offset = index1 - 1;
+
+  const sqlFindId = `
+    SELECT id
+    FROM expense
+    WHERE user_id = ?
+    ORDER BY id ASC
+    LIMIT ?, 1
+  `;
+
+  con.query(sqlFindId, [userId, offset], (err, rows) => {
+    if (err) return res.status(500).json({ message: 'Database error' });
+
+    if (!rows || rows.length === 0) {
+      return res.status(404).json({ message: 'Expense not found at this index' });
+    }
+
+    const realId = rows[0].id;
+
+    const sqlDelete = `DELETE FROM expense WHERE id = ? AND user_id = ?`;
+    con.query(sqlDelete, [realId, userId], (err2, result2) => {
+      if (err2) return res.status(500).json({ message: 'Database error' });
+
+      if (result2.affectedRows === 0) {
+        return res.status(404).json({ message: 'Expense not found or not owned by user' });
+      }
+      return res.json({ message: 'Deleted', id: realId, index: index1 });
+    });
+  });
+});
 
 
 

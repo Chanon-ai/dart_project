@@ -114,6 +114,51 @@ void main() async {
       // dev 2 Delete an expense
       case '5':
         // code
+        final expenseRespDel = await http.get(
+          Uri.parse('http://localhost:3000/expense/$userId'),
+        );
+        if (expenseRespDel.statusCode == 200) {
+          expenses = (jsonDecode(expenseRespDel.body) as List)
+              .map((e) => Expense.fromJson(e))
+              .toList();
+
+          if (expenses.isEmpty) {
+            print('No expenses to delete.');
+            break;
+          }
+
+          print('----------- Choose an expense to delete -----------');
+          for (int i = 0; i < expenses.length; i++) {
+            var e = expenses[i];
+            print('${i + 1}. ${e.item} : ${e.paid}฿ : ${e.date}');
+          }
+
+          stdout.write('Item id: ');
+          String? idInput = stdin.readLineSync();
+          if (idInput == null || idInput.isEmpty) {
+            print('Invalid input');
+            break;
+          }
+
+          int? idx = int.tryParse(idInput);
+          if (idx == null || idx < 1 || idx > expenses.length) {
+            print('Invalid item id');
+            break;
+          }
+
+          
+          final delResp = await http.delete(
+            Uri.parse('http://localhost:3000/expense/$userId/$idx'),
+          );
+
+          if (delResp.statusCode == 200) {
+            print('Deleted!');
+          } else {
+            print('Delete failed: ${delResp.body}');
+          }
+        } else {
+          print('Cannot fetch expenses: ${expenseRespDel.body}');
+        }
         break;
 
       case '6':
