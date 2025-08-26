@@ -2,7 +2,6 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
-
 class Expense {
   String item;
   int paid;
@@ -10,12 +9,10 @@ class Expense {
 
   Expense(this.item, this.paid, this.date);
 
-
   factory Expense.fromJson(Map<String, dynamic> json) {
     return Expense(json['item'], json['paid'], DateTime.parse(json['date']));
   }
 }
-
 
 void main() async {
   print('=========== login ==========');
@@ -24,12 +21,10 @@ void main() async {
   stdout.write('Password: ');
   String? password = stdin.readLineSync()?.trim();
 
-
   if (username == null || password == null) {
     print('Incomplete input');
     return;
   }
-
 
   final loginResp = await http.post(
     Uri.parse('http://localhost:3000/login'),
@@ -37,28 +32,27 @@ void main() async {
     body: jsonEncode({'username': username, 'password': password}),
   );
 
-
   if (loginResp.statusCode != 200) {
     print('Login failed: ${loginResp.body}');
     return;
   }
 
-
   final userId = jsonDecode(loginResp.body)['userId'];
-
 
   bool running = true;
   List<Expense> expenses = [];
 
-
   while (running) {
     print('========== Expense Tracking App ==========');
+    print('Welcome, $username');
     print('1. Show all');
     print('2. Today expense');
-    print('3. Exit');
+    print('3. Search expense');
+    print('4. Add new expense');
+    print('5. Delete an expense');
+    print('6. Exit');
     stdout.write('Choose... ');
     String? choice = stdin.readLineSync();
-
 
     switch (choice) {
       case '1':
@@ -81,7 +75,6 @@ void main() async {
           print('Cannot fetch expenses: ${expenseResp.body}');
         }
         break;
-
 
       case '2':
         final expenseRespToday = await http.get(
@@ -108,12 +101,25 @@ void main() async {
         }
         break;
 
-
+      // dev 1 search expense
       case '3':
+        // code
+        break;
+
+      // dev 2 Add new expense
+      case '4':
+        // code
+        break;
+
+      // dev 2 Delete an expense
+      case '5':
+        // code
+        break;
+
+      case '6':
         running = false;
         print('--------- Bye --------');
         break;
-
 
       default:
         print('Invalid choice!');
