@@ -63,7 +63,28 @@ app.get('/expense/:userId', (req, res) => {
 });
 
 // ---------------- Search Expense ----------------
+// ---------------- Search Expenses ----------------
+app.get('/expensess/:userId/search', (req, res) => {
+    const userId = req.params.userId;
+    const keyword = req.query.keyword;
 
+    if (!keyword) {
+        return res.status(400).json({ message: "Keyword required" });
+    }
+
+    const sql = `
+        SELECT *
+        FROM expense
+        WHERE user_id = ? AND item LIKE ?
+        ORDER BY date DESC
+    `;
+    const likeKeyword = `%${keyword}%`;
+
+    con.query(sql, [userId, likeKeyword], (err, results) => {
+        if (err) return res.status(500).json({ message: "Database error" });
+        res.json(results);
+    });
+});
 
 // ---------------- Add new Expense ----------------
 
