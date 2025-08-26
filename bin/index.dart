@@ -103,7 +103,40 @@ void main() async {
 
       // dev 1 search expense
       case '3':
-        // code
+        stdout.write('Item to search: ');
+        String? keyword = stdin.readLineSync()?.trim();
+
+        if (keyword == null || keyword.isEmpty) {
+          print('Invalid input!');
+          break;
+        }
+
+        try {
+          final expenseRespSearch = await http.get(
+            Uri.parse(
+              'http://localhost:3000/expensess/$userId/search?keyword=$keyword',
+            ),
+          );
+
+          if (expenseRespSearch.statusCode == 200) {
+            List<Expense> results = (jsonDecode(expenseRespSearch.body) as List)
+                .map((e) => Expense.fromJson(e))
+                .toList();
+
+            if (results.isEmpty) {
+              print('No Item: $keyword');
+            } else {
+              for (int i = 0; i < results.length; i++) {
+                var e = results[i];
+                print('${i + 1}. ${e.item} : ${e.paid}à¸¿ : ${e.date}');
+              }
+            }
+          } else {
+            print('Cannot fetch search results: ${expenseRespSearch.body}');
+          }
+        } catch (e) {
+          print('Error: $e');
+        }
         break;
 
       // dev 2 Add new expense
