@@ -109,6 +109,40 @@ void main() async {
       // dev 2 Add new expense
       case '4':
         // code
+        print('===== Add new item =====');
+        stdout.write('Item: ');
+        String? item = stdin.readLineSync()?.trim();
+        stdout.write('Paid: ');
+        String? paidStr = stdin.readLineSync()?.trim();
+
+        if (item == null || item.isEmpty || paidStr == null || paidStr.isEmpty) {
+          print('Invalid input!');
+          break;
+        }
+
+        int? paid = int.tryParse(paidStr);
+        if (paid == null) {
+          print('Paid must be a number!');
+          break;
+        }
+
+        final addResp = await http.post(
+          Uri.parse(
+            'http://localhost:3000/expenses/$userId',
+          ), 
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({
+            'item': item,
+            'paid': paid,
+            'date': DateTime.now().toIso8601String(),
+          }),
+        );
+
+        if (addResp.statusCode == 201) {
+          print('Inserted!');
+        } else {
+          print('Failed to insert: ${addResp.body}');
+        }
         break;
 
       // dev 2 Delete an expense
